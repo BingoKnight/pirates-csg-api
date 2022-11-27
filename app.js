@@ -68,8 +68,7 @@ const routers = [
 ]
 
 routers.forEach(router => {
-    app.use(router.route, passport.authenticate('bearer', { session: false }), router.router.protectedRouter)
-    app.use(router.route, router.router.unprotectedRouter)
+    app.use(router.route, router.router)
 })
 
 // catch 404 and forward to error handler

@@ -1,17 +1,17 @@
 import express from 'express'
 
 import { importCsgModels, queryCsgModels } from '../crud/csgModel.js';
+import { auth } from '../utils/auth.js'
 import { capitalize } from '../utils/string.js'
 
-const protectedRouter = express.Router();
-const unprotectedRouter = express.Router()
+const router = express.Router();
 
-protectedRouter.put('/import', async (req, res, next) => {
+router.put('/import', auth(), async (req, res, next) => {
     console.log(req.body)
     res.send(await importCsgModels(req.body))
 })
 
-unprotectedRouter.get('', async (req, res, next) => {
+router.get('', async (req, res, next) => {
     const piratesCsgArray = await queryCsgModels(req.query)
     const resJson = {
         count: piratesCsgArray.length,
@@ -20,10 +20,12 @@ unprotectedRouter.get('', async (req, res, next) => {
     res.send(resJson)
 })
 
-protectedRouter.put('/keywords', async (req, res) => {
+router.put('/keywords', auth(),async (req, res) => {
     const piratesCsgArray = await queryCsgModels(req.query)
     const updatedPiratesCsgArray = piratesCsgArray.map(csgItem => {
-        const newKeywords = req.body.keywords.map(t => capitalize(t)).filter(keyword => !csgItem.keywords.includes(keyword))
+        const newKeywords = req.body.keywords
+            .map(t => capitalize(t))
+            .filter(keyword => !csgItem.keywords.includes(keyword))
         csgItem.keywords.push(...newKeywords)
         return csgItem
     })
@@ -36,7 +38,7 @@ protectedRouter.put('/keywords', async (req, res) => {
     })
 })
 
-protectedRouter.delete('/keywords', async (req, res) => {
+router.delete('/keywords', auth(),async (req, res) => {
     const {id, set, keyword} = req.query
     const piratesCsgArray = await queryCsgModels({id, set})
     const updatedPiratesCsgArray = piratesCsgArray.map(csgItem => {
@@ -53,8 +55,5 @@ protectedRouter.delete('/keywords', async (req, res) => {
     })
 })
 
-export default {
-    protectedRouter,
-    unprotectedRouter
-}
+export default router
 

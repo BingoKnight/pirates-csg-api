@@ -2,16 +2,16 @@ import express from 'express'
 import _ from 'lodash'
 
 import { addKeyword, getKeywords } from '../crud/abilityKeyword.js';
+import { auth } from '../utils/auth.js'
 
-const protectedRouter = express.Router();
-const unprotectedRouter = express.Router();
+const router = express.Router();
 
-protectedRouter.put('/update', async (req, res, next) => {
+router.put('/update', auth(), async (req, res, next) => {
     console.log(req.body)
     res.send(await addKeyword(req.body))
 })
 
-protectedRouter.get('', async (req, res, next) => {
+router.get('', async (req, res, next) => {
     let query = {}
 
     if (req.query.name) {
@@ -26,8 +26,5 @@ protectedRouter.get('', async (req, res, next) => {
     res.send({keywords: await getKeywords(query)})
 })
 
-export default {
-    protectedRouter,
-    unprotectedRouter
-}
+export default router
 

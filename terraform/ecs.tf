@@ -94,9 +94,9 @@ resource "aws_appautoscaling_policy" "pirates_csg_api_request_scaling_policy" {
       predefined_metric_type = "ALBRequestCountPerTarget"
       resource_label         = "${aws_lb.pirates_csg_api_alb.arn_suffix}/${aws_lb_target_group.pirates_csg_api_lb_tg.arn_suffix}"
     }
-    scale_out_cooldown = 5
+    scale_out_cooldown = 30
     scale_in_cooldown  = 60
-    target_value       = 10
+    target_value       = 20
   }
 }
 
