@@ -10,7 +10,7 @@ terraform {
     region               = "us-east-1"
     bucket               = "nathan-terraform-state"
     key                  = "terraform.tfstate"
-    workspace_key_prefix = "pirates-csg"
+    workspace_key_prefix = "pirates-csg-api"
     profile              = "pirates-csg-admin"
   }
 }

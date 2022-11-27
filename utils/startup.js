@@ -61,6 +61,7 @@ export function connectDb() {
     return mongoose.connect(config.MONGO_CONNECTION_URI, {
         user: config.DB_USER,
         pass: config.DB_PASSWORD,
+        dbName: config.DB_NAME,
         keepAlive: true,
         useNewUrlParser: true,
         useUnifiedTopology: true,
