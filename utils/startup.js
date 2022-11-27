@@ -1,5 +1,8 @@
+import cluster from 'cluster'
 import debug from 'debug'
 import http from 'http'
+import { cpus } from 'os'
+import process from 'process'
 
 import mongoose from 'mongoose'
 
@@ -55,12 +58,10 @@ export function connectDb() {
         .on('disconnected', console.log)
         .once('open', () => console.log('Database connection established'))
 
-    const connectionUrl = `mongodb://${config.DB_SERVER}:${config.DB_PORT}/${config.DB_NAME}`
-
-    return mongoose.connect(connectionUrl, {
+    return mongoose.connect(config.MONGO_CONNECTION_URI, {
         user: config.DB_USER,
         pass: config.DB_PASSWORD,
-        keepAlive: 1,
+        keepAlive: true,
         useNewUrlParser: true,
         useUnifiedTopology: true,
     })
@@ -68,11 +69,28 @@ export function connectDb() {
 
 export default function startServer(app) {
     const port = normalizePort(process.env.PORT || '8080')
-    app.set('port', port)
-    const server = http.createServer(app)
-    server.listen(port)
-    console.log(`Listening on localhost:${port}`)
-    server.on('error', onError)
-    server.on('listening', () => onListening(server))
+
+    if (cluster.isPrimary && config.NODE_ENV === 'production'){
+        const numCpus = cpus().length * 2 + 1
+
+        for (let i = 0; i < numCpus; i++) {
+            cluster.fork()
+        }
+
+        cluster.on('exit', (worker, code, signal) => {
+            console.log(`worker: ${worker.process.pid} died`)
+        })
+    } else {
+        app.set('port', port)
+
+        const server = http.createServer(app)
+        server.listen(port)
+        server.on('error', onError)
+        server.on('listening', () => onListening(server))
+
+        console.log(`Worker ${process.pid} started`)
+    }
+
+    console.log(`Listening on port ${port}`)
 }
 

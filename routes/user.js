@@ -2,15 +2,20 @@ import express from 'express'
 
 import { registerUser, userList } from '../crud/user.js'
 
-const router = express.Router();
+const protectedRouter = express.Router();
+const unprotectedRouter = express.Router()
 
-router.post('/register', async (req, res) => {
+unprotectedRouter.post('/register', async (req, res) => {
     console.log(req.body)
     res.send(await registerUser(req.body))
 })
 
-router.get('', async (req, res) => {
+protectedRouter.get('', async (req, res) => {
     res.send(await userList())
 })
 
-export default router
+export default {
+    protectedRouter,
+    unprotectedRouter
+}
+
