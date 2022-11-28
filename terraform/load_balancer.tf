@@ -49,12 +49,10 @@ resource "aws_lb" "pirates_csg_api_alb" {
 
 resource "aws_lb_listener" "pirates_csg_api_listener" {
   load_balancer_arn = aws_lb.pirates_csg_api_alb.arn
-  port              = "80"
-  protocol          = "HTTP"
-  # port              = "443"
-  # protocol          = "HTTPS"
-  # ssl_policy        = "ELBSecurityPolicy-2016-08"
-  # certificate_arn   = aws_acm_certificate.pirates_csg_certificate.arn
+  port              = "443"
+  protocol          = "HTTPS"
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
+  certificate_arn   = data.aws_acm_certificate.pirates_csg_certificate.arn
 
   default_action {
     type             = "forward"

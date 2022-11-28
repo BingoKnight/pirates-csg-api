@@ -25,8 +25,12 @@ app.use(express.static(path.resolve('./public')))
 
 const corsAllowList = [
     'http://localhost:3000',
+    'http://piratescsg.net/',
     'http://piratescsg.net',
-    'https://piratescsg.net'
+    'https://piratescsg.net/',
+    'https://piratescsg.net',
+    'https://www.piratescsg.net/',
+    'https://www.piratescsg.net'
 ]
 
 app.use(cors({
