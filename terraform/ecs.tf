@@ -13,8 +13,8 @@ resource "aws_ecs_task_definition" "pirates_csg_api_task_definition" {
   task_role_arn            = aws_iam_role.pirates_csg_api_role.arn
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = 2048
-  memory                   = 4096
+  cpu                      = 512
+  memory                   = 1024
 
   depends_on = [aws_ecr_repository.ecr-repo]
 
@@ -94,7 +94,7 @@ resource "aws_appautoscaling_policy" "pirates_csg_api_request_scaling_policy" {
       predefined_metric_type = "ALBRequestCountPerTarget"
       resource_label         = "${aws_lb.pirates_csg_api_alb.arn_suffix}/${aws_lb_target_group.pirates_csg_api_lb_tg.arn_suffix}"
     }
-    scale_out_cooldown = 30
+    scale_out_cooldown = 10
     scale_in_cooldown  = 60
     target_value       = 20
   }
@@ -111,9 +111,9 @@ resource "aws_appautoscaling_policy" "pirates_csg_api_cpu_scaling_policy" {
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
-    scale_out_cooldown = 30
+    scale_out_cooldown = 15
     scale_in_cooldown  = 60
-    target_value       = 75
+    target_value       = 50
   }
 }
 
@@ -128,9 +128,9 @@ resource "aws_appautoscaling_policy" "pirates_csg_api_memory_scaling_policy" {
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageMemoryUtilization"
     }
-    scale_out_cooldown = 30
+    scale_out_cooldown = 15
     scale_in_cooldown  = 60
-    target_value       = 75
+    target_value       = 50
   }
 }
 

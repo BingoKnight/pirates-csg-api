@@ -72,9 +72,12 @@ export default function startServer(app) {
     const port = normalizePort(process.env.PORT || '8080')
 
     if (cluster.isPrimary && config.NODE_ENV === 'production'){
-        const numCpus = cpus().length * 2 + 1
+        const cpuLength = cpus().length
+        const workerCount = cpus().length * 2 + 1
 
-        for (let i = 0; i < numCpus; i++) {
+        console.log(`Found ${cpuLength} CPUs, will spawn ${workerCount} workers`)
+
+        for (let i = 0; i < workerCount; i++) {
             cluster.fork()
         }
 

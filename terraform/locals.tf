@@ -6,7 +6,7 @@ locals {
 
   environment_variables = [
     {
-      name  = "ENV_TYPE"
+      name  = "NODE_ENV"
       value = "production"
     },
     {
