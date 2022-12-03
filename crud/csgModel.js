@@ -26,6 +26,10 @@ export async function queryCsgModels(queryParams = {}) {
         return {[key]: value}
     }
 
+    function equalsExactCaseInsensitive(key, value) {
+        return {[key]: { $regex: new RegExp(`^${_.escapeRegExp(value)}$`, 'i') }}
+    }
+
     function equalsLike(key, value) {
         if (value.constructor === Array)
             return {
@@ -51,7 +55,7 @@ export async function queryCsgModels(queryParams = {}) {
         set: equalsLike,      // may remove in favor of front end dropdown
         faction: equalsLike,  // may remove in favor of front end dropdown
         type: equalsLike,     // may remove in favor of front end dropdown
-        rarity: equalsExact,
+        rarity: equalsExactCaseInsensitive,
         name: equalsLike,
         pointCost: equalsExact,
         minPointCost: (_, val) => greaterThanEqualTo('pointCost', val),
