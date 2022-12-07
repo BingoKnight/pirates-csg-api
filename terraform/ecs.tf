@@ -53,6 +53,7 @@ resource "aws_ecs_service" "pirates_csg_api" {
 
   lifecycle {
     # Allow autoscaling to modify desired_count without upsetting Terraform
+    # Comment out when intentionally modifing desired count because this will block that change
     ignore_changes = [desired_count]
   }
 
