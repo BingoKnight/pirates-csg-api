@@ -20,7 +20,7 @@ router.get('', async (req, res, next) => {
     res.send(resJson)
 })
 
-router.put('/keywords', auth(),async (req, res) => {
+router.put('/keywords', auth(), async (req, res) => {
     const piratesCsgArray = await queryCsgModels(req.query)
     const updatedPiratesCsgArray = piratesCsgArray.map(csgItem => {
         const newKeywords = req.body.keywords
@@ -38,7 +38,7 @@ router.put('/keywords', auth(),async (req, res) => {
     })
 })
 
-router.delete('/keywords', auth(),async (req, res) => {
+router.delete('/keywords', auth(), async (req, res) => {
     const {id, set, keyword} = req.query
     const piratesCsgArray = await queryCsgModels({id, set})
     const updatedPiratesCsgArray = piratesCsgArray.map(csgItem => {

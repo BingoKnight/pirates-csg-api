@@ -1,21 +1,42 @@
 import express from 'express'
+import sanitizeRequest from 'express-sanitize-middleware'
+import { validate } from 'express-validation'
 
-import { registerUser, userList } from '../crud/user.js'
+import { deleteUserToken, userList } from '../crud/user.js'
+import { emailValidation, loginValidation, registrationValidation } from '../models/user.js';
+import { handleForgotUsername, handleLogin, handleRegistration } from '../services/user.js';
+import { auth } from '../utils/auth.js'
 
-const protectedRouter = express.Router();
-const unprotectedRouter = express.Router()
+const router = express.Router();
 
-unprotectedRouter.post('/register', async (req, res) => {
-    console.log(req.body)
-    res.send(await registerUser(req.body))
+router.post(
+    '/register',
+    [sanitizeRequest({ body: true }), validate(registrationValidation, {}, {})],
+    handleRegistration
+)
+
+router.post(
+    '/login',
+    [sanitizeRequest({ body: true }), validate(loginValidation, {}, {})],
+    handleLogin
+)
+
+router.post('/logout', auth(), async (req, res) => {
+    const { user } = req
+    console.log(`Logging out user: ${JSON.stringify(user)}`)
+    await deleteUserToken(user)
+    res.send()
 })
 
-protectedRouter.get('', async (req, res) => {
+// router.post(
+//     '/forgot-username',
+//     [sanitizeRequest({ body: true }), validate(emailValidation, {}, {})],
+//     handleForgotUsername
+// )
+
+router.get('', auth(), async (req, res) => {
     res.send(await userList())
 })
 
-export default {
-    protectedRouter,
-    unprotectedRouter
-}
+export default router
 

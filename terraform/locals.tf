@@ -12,6 +12,10 @@ locals {
     {
       name  = "PORT"
       value = "8000"
+    },
+    {
+      name  = "BASE_URL"
+      value = "https://api.piratescsg.net"
     }
   ]
 
@@ -27,6 +31,10 @@ locals {
     {
       name      = "MONGO_CONNECTION_URI"
       valueFrom = "${aws_secretsmanager_secret.secrets.arn}:MONGO_CONNECTION_URI::"
+    },
+    {
+      name      = "JWT_SECRET"
+      valueFrom = "${aws_secretsmanager_secret.secrets.arn}:JWT_SECRET::"
     }
   ]
 }

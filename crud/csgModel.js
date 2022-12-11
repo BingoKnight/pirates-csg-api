@@ -38,7 +38,6 @@ export async function queryCsgModels(queryParams = {}) {
                 }))
             }
 
-        // return {[key]: {$regex: _.escapeRegExp(value)}}
         return {[key]: {$regex: _.escapeRegExp(value), $options: 'i'}}
     }
 
