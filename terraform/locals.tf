@@ -29,6 +29,10 @@ locals {
       valueFrom = "${aws_secretsmanager_secret.secrets.arn}:DB_PASSWORD::"
     },
     {
+      name      = "DB_NAME"
+      valueFrom = "${aws_secretsmanager_secret.secrets.arn}:DB_NAME::"
+    },
+    {
       name      = "MONGO_CONNECTION_URI"
       valueFrom = "${aws_secretsmanager_secret.secrets.arn}:MONGO_CONNECTION_URI::"
     },

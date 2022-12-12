@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "secrets" {
-    name = "${local.service_name}-secrets-manager"
+    name = local.service_name
     tags = {
         environment = terraform.workspace
     }

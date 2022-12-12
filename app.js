@@ -29,21 +29,17 @@ app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.resolve('./public')))
 
-const corsAllowList = [
+const allowedOrigins = [
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'http://192.168.1.6:3000', // local network access
-    'http://piratescsg.net/',
-    'http://piratescsg.net',
-    'https://piratescsg.net/',
     'https://piratescsg.net',
-    'https://www.piratescsg.net/',
     'https://www.piratescsg.net'
 ]
 
 app.use(cors({
-    origin: corsAllowList,
-    credentials: config.NODE_ENV === 'local' ? true : false
+    origin: allowedOrigins,
+    credentials: true
 }))
 
 startServer(app)
