@@ -19,9 +19,9 @@ export async function getUserByEmail(email) {
     return await UserTable.findOne({ email })
 }
 
-export async function updateUserToken(userId) {
+export async function updateUserToken(user) {
     const token = uuidv4()
-    await UserTable.updateOne({ _id: userId }, { token }, { upsert: true }).exec()
+    await UserTable.updateOne({ _id: user._id }, { token }, { upsert: true }).exec()
     return token
 }
 
@@ -31,5 +31,13 @@ export async function getUserByToken(token) {
 
 export async function deleteUserToken(user) {
     return await UserTable.updateOne({ _id: user._id }, { token: null }, { upsert: true }).exec()
+}
+
+export async function updateUserPassword(user, password) {
+    return await UserTable.updateOne({ _id: user._id }, { password }, { upsert: true }).exec()
+}
+
+export async function updateUserEmail(user, email) {
+    return await UserTable.updateOne({ _id: user._id }, { email }, { upsert: true }).exec()
 }
 

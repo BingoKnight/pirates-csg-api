@@ -3,11 +3,20 @@ import sanitizeRequest from 'express-sanitize-middleware'
 import { validate } from 'express-validation'
 
 import { deleteUserToken, userList } from '../crud/user.js'
-import { emailValidation, loginValidation, registrationValidation } from '../models/user.js';
-import { handleForgotUsername, handleLogin, handleRegistration } from '../services/user.js';
+import { emailValidation, loginValidation, passwordValidation, registrationValidation } from '../models/user.js';
+import {
+    handleChangeEmail,
+    handleChangePassword,
+    handleForgotUsername,
+    handleGetUser,
+    handleLogin,
+    handleRegistration
+} from '../services/user.js';
 import { auth } from '../utils/auth.js'
 
 const router = express.Router();
+
+router.get('/', auth(), handleGetUser)
 
 router.post(
     '/register',
@@ -27,6 +36,24 @@ router.post('/logout', auth(), async (req, res) => {
     await deleteUserToken(user)
     res.send()
 })
+
+router.post(
+    '/change-password',
+    [sanitizeRequest({ body: true }), validate(passwordValidation, {}, {}), auth()],
+    handleChangePassword
+)
+
+router.post(
+    '/change-password',
+    [sanitizeRequest({ body: true }), validate(passwordValidation, {}, {}), auth()],
+    handleChangePassword
+)
+
+router.post(
+    '/change-email',
+    [sanitizeRequest({ body: true }), validate(emailValidation, {}, {}), auth()],
+    handleChangeEmail
+)
 
 // router.post(
 //     '/forgot-username',

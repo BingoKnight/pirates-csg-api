@@ -49,8 +49,9 @@ passport.use(new BearerStrategy(async (token, done) => {
     let verifiedToken = null
     try {
         verifiedToken = jwt.verify(token, config.JWT_SECRET)
-    } catch {
+    } catch(err) {
         console.log('Unable to decode token with JWT secret')
+        console.dir(err)
         return done(null, false)
     }
 

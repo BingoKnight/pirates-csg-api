@@ -4,7 +4,15 @@ import jwt from 'jsonwebtoken'
 import nodemailer from 'nodemailer'
 
 import config from '../common/config.js'
-import { getUserByEmail, getUserByUsername, registerUser, updateUserToken } from '../crud/user.js'
+import {
+    getUserByEmail,
+    getUserByUsername,
+    registerUser,
+    updateUserEmail,
+    updateUserPassword,
+    updateUserToken
+} from '../crud/user.js'
+import { setCookie } from '../utils/cookies.js'
 
 function getUniquenessError(err) {
     const unique_error_mapper = {
@@ -24,6 +32,12 @@ function getUniquenessError(err) {
 async function hashPassword(password) {
     const saltIterations = 10
     return await bcrypt.hash(password, saltIterations)
+}
+
+export function handleGetUser(req, res) {
+    const { _id, __v, ...user } = req.user._doc // strip unneeded fields
+    console.log(`GET user request for ${user.username}`)
+    res.send(user)
 }
 
 export async function handleRegistration(req, res) {
@@ -46,7 +60,7 @@ export async function handleRegistration(req, res) {
         }
         console.log(`Registration result: ${JSON.stringify(logSafeUser)}`)
 
-        res.cookie('x-token', await refreshToken(user))
+        setCookie(res, 'x-token', await refreshToken(user))
         res.status(201).send({
             username: user.username,
             email: user.email
@@ -69,7 +83,7 @@ export async function handleRegistration(req, res) {
 async function refreshToken(user) {
     return jwt.sign(
         {
-            token: await updateUserToken(user._id)
+            token: await updateUserToken(user)
         },
         config.JWT_SECRET,
         {
@@ -92,7 +106,7 @@ export async function handleLogin(req, res) {
             throw new Error(`No user matching username ${username}`)
 
         if (await bcrypt.compare(password, user.password)) {
-            res.cookie('x-token', await refreshToken(user))
+            setCookie(res, 'x-token', await refreshToken(user))
             res.status(200).send({
                 username: user.username,
                 email: user.email
@@ -107,6 +121,53 @@ export async function handleLogin(req, res) {
         res.status(404).send({
             error: 'User does not exist with credentials provided'
         })
+        return
+    }
+}
+
+export async function handleChangePassword(req, res) {
+    const { password } = req.body
+    const user = req.user
+
+    console.log(`User change password request received for ${user.username}`)
+
+    const hashedPassword = await hashPassword(password)
+
+    try {
+        await updateUserPassword(user, hashedPassword)
+        setCookie(res, 'x-token', await refreshToken(user))
+        res.status(200).send()
+        return
+    } catch(err) {
+        console.log(`Error updating password for ${user.username}: ${err}`)
+        console.dir(err)
+        res.status(500).send()
+        return
+    }
+}
+
+export async function handleChangeEmail(req, res) {
+    const { email } = req.body
+    const user = req.user
+
+    console.log(`User change email request received for ${user.username}`)
+
+    try {
+        await updateUserEmail(user, email)
+        setCookie(res, 'x-token', await refreshToken(user))
+        res.status(200).send()
+        return
+    } catch(err) {
+        console.log(`Error updating email for ${user.username}: ${err}`)
+        console.dir(err)
+
+        if (err.name === 'MongoServerError' && err.code === 11000) {
+            console.log(`MongoServerError: ${err}`)
+            res.status(409).send(getUniquenessError(err))
+            return
+        }
+
+        res.status(500).send()
         return
     }
 }

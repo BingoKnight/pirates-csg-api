@@ -16,6 +16,10 @@ locals {
     {
       name  = "BASE_URL"
       value = "https://api.piratescsg.net"
+    },
+    {
+      name  = "DOMAIN"
+      value = "piratescsg.net"
     }
   ]
 
