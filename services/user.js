@@ -5,6 +5,7 @@ import nodemailer from 'nodemailer'
 
 import config from '../common/config.js'
 import {
+    getFullUser,
     getUserByEmail,
     getUserByUsername,
     registerUser,
@@ -126,18 +127,25 @@ export async function handleLogin(req, res) {
 }
 
 export async function handleChangePassword(req, res) {
-    const { password } = req.body
+    const { password, newPassword } = req.body
     const user = req.user
 
     console.log(`User change password request received for ${user.username}`)
 
-    const hashedPassword = await hashPassword(password)
-
     try {
-        await updateUserPassword(user, hashedPassword)
-        setCookie(res, 'x-token', await refreshToken(user))
-        res.status(200).send()
-        return
+        const dbUser = await getFullUser(user)
+
+        if (await bcrypt.compare(password, dbUser.password)) {
+            const hashedPassword = await hashPassword(newPassword)
+            await updateUserPassword(user, hashedPassword)
+
+            setCookie(res, 'x-token', await refreshToken(user))
+            res.status(200).send()
+            return
+        } else {
+            setCookie(res, 'x-token', await refreshToken(user))
+            res.status(401).send({ error: 'Invalid password' })
+        }
     } catch(err) {
         console.log(`Error updating password for ${user.username}: ${err}`)
         console.dir(err)

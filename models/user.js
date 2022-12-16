@@ -5,7 +5,7 @@ const passwordJoi = Joi.string()
     .required()
     .messages({
         'string.empty': 'Password cannot be empty',
-        'string.pattern.base': 'Password can only contain alphanumeric character or the following special characters -_!@#$%^&*()'
+        'string.pattern.base': 'Password must be between 6 and 20 characters, and can only contain alphanumeric character or the following special characters -_!@#$%^&*()'
     })
 
 const emailJoi = Joi.string()
@@ -23,7 +23,7 @@ export const registrationValidation = {
             .required()
             .messages({
                 'string.empty': 'Username cannot be empty',
-                'string.pattern.base': 'Username can only contain alphanumeric characters as well as hyphens (-) and underscores (_)'
+                'string.pattern.base': 'Username must be between 4 and 20 characters, and can only contain alphanumeric characters as well as hyphens (-) and underscores (_)'
             }),
         email: emailJoi,
         password: passwordJoi
@@ -43,8 +43,9 @@ export const emailValidation = {
     })
 }
 
-export const passwordValidation = {
+export const changePasswordValidation = {
     body: Joi.object({
-        password: passwordJoi
+        password: Joi.string().required(),  // no need to validate already set password, only need to require it
+        newPassword: passwordJoi
     })
 }
