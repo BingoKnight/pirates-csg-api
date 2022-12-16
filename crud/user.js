@@ -12,7 +12,7 @@ export async function userList() {
 }
 
 export async function getUserByUsername(username) {
-    return await UserTable.findOne({ username }).select('+password')
+    return await UserTable.findOne({ _queryUsername: username.toLowerCase() }).select('+password')
 }
 
 export async function getFullUser(user) {

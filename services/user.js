@@ -17,6 +17,9 @@ import { setCookie } from '../utils/cookies.js'
 
 function getUniquenessError(err) {
     const unique_error_mapper = {
+        _queryUsername: {
+            error: 'Username is already taken'
+        },
         username: {
             error: 'Username is already taken'
         },
@@ -43,11 +46,13 @@ export function handleGetUser(req, res) {
 
 export async function handleRegistration(req, res) {
     try {
-        const { password, email, ...userInfo } = req.body
+        const { password, email, username, ...userInfo } = req.body
         console.log(`Registration request: ${JSON.stringify(userInfo)}`)
 
         const hashPasswordUser = {
             ...userInfo,
+            username,
+            _queryUsername: username.toLowerCase(),
             email: email.toLowerCase(),
             password: await hashPassword(password),
             secret: crypto.randomBytes(256).toString('base64')
