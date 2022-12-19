@@ -82,9 +82,8 @@ export async function queryCsgModels(queryParams = {}) {
     return await baseQuery(queryData).exec()
 }
 
-export async function findByObjectIds(objectIdList) {
+export async function findCsgModelsByObjectIds(objectIdList) {
     const query = {_id: objectIdList}
-    console.log(query)
     return await baseQuery(query).exec()
 }
 

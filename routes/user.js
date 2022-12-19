@@ -5,12 +5,12 @@ import { validate } from 'express-validation'
 import { userList } from '../crud/user.js'
 import { emailValidation, loginValidation, changePasswordValidation, registrationValidation } from '../models/user.js';
 import {
-    handleChangeEmail,
-    handleChangePassword,
-    handleForgotUsername,
-    handleGetUser,
-    handleLogin,
-    handleRegistration
+    changeEmailHandler,
+    changePasswordHandler,
+    forgotUsernameHandler,
+    getUserHandler,
+    loginHandler,
+    registrationHandler
 } from '../services/user.js';
 import { auth } from '../utils/auth.js'
 
@@ -20,12 +20,12 @@ const router = express.Router();
 //       if they cannot, then figure out how to save a null token to db but also that a token must
 //       be unique
 
-router.get('/', auth(), handleGetUser)
+router.get('/', auth(), getUserHandler)
 
 router.post(
     '/register',
     [sanitizeRequest({ body: true }), validate(registrationValidation, {}, {})],
-    handleRegistration
+    registrationHandler
 )
 
 // router.post(
@@ -39,7 +39,7 @@ router.post(
 router.post(
     '/login',
     [sanitizeRequest({ body: true }), validate(loginValidation, {}, {})],
-    handleLogin
+    loginHandler
 )
 
 router.post('/logout', auth(), async (req, res) => {
@@ -52,19 +52,19 @@ router.post('/logout', auth(), async (req, res) => {
 router.post(
     '/change-password',
     [sanitizeRequest({ body: true }), auth(), validate(changePasswordValidation, {}, {})],
-    handleChangePassword
+    changePasswordHandler
 )
 
 router.post(
     '/change-email',
     [sanitizeRequest({ body: true }), auth(), validate(emailValidation, {}, {})],
-    handleChangeEmail
+    changeEmailHandler
 )
 
 // router.post(
 //     '/forgot-username',
 //     [sanitizeRequest({ body: true }), validate(emailValidation, {}, {})],
-//     handleForgotUsername
+//     forgotUsernameHandler
 // )
 
 router.get('', auth(), async (req, res) => {

@@ -1,9 +1,7 @@
 import bcrypt from 'bcrypt'
 import crypto from 'crypto'
-import jwt from 'jsonwebtoken'
 import nodemailer from 'nodemailer'
 
-import config from '../common/config.js'
 import {
     getFullUser,
     getUserByEmail,
@@ -11,8 +9,8 @@ import {
     registerUser,
     updateUserEmail,
     updateUserPassword,
-    updateUserToken
 } from '../crud/user.js'
+import { refreshToken } from '../utils/auth.js'
 import { setCookie } from '../utils/cookies.js'
 
 function getUniquenessError(err) {
@@ -38,13 +36,13 @@ async function hashPassword(password) {
     return await bcrypt.hash(password, saltIterations)
 }
 
-export function handleGetUser(req, res) {
+export function getUserHandler(req, res) {
     const { _id, __v, ...user } = req.user._doc // strip unneeded fields
     console.log(`GET user request for ${user.username}`)
     res.send(user)
 }
 
-export async function handleRegistration(req, res) {
+export async function registrationHandler(req, res) {
     try {
         const { password, email, username, ...userInfo } = req.body
         console.log(`Registration request: ${JSON.stringify(userInfo)}`)
@@ -86,22 +84,7 @@ export async function handleRegistration(req, res) {
     }
 }
 
-async function refreshToken(user) {
-    return jwt.sign(
-        {
-            token: await updateUserToken(user)
-        },
-        config.JWT_SECRET,
-        {
-            algorithm: 'HS256',
-            expiresIn: '2 days',
-            issuer: config.BASE_URL,
-            audience: config.BASE_URL
-        }
-    )
-}
-
-export async function handleLogin(req, res) {
+export async function loginHandler(req, res) {
     const { username, password } = req.body
 
     try {
@@ -111,7 +94,7 @@ export async function handleLogin(req, res) {
         if (!user)
             throw new Error(`No user matching username ${username}`)
 
-        if (await bcrypt.compare(password, user.password)) {
+        if (bcrypt.compare(password, user.password)) {
             setCookie(res, 'x-token', await refreshToken(user))
             res.status(200).send({
                 username: user.username,
@@ -131,7 +114,7 @@ export async function handleLogin(req, res) {
     }
 }
 
-export async function handleChangePassword(req, res) {
+export async function changePasswordHandler(req, res) {
     const { password, newPassword } = req.body
     const user = req.user
 
@@ -140,7 +123,7 @@ export async function handleChangePassword(req, res) {
     try {
         const dbUser = await getFullUser(user)
 
-        if (await bcrypt.compare(password, dbUser.password)) {
+        if (bcrypt.compare(password, dbUser.password)) {
             const hashedPassword = await hashPassword(newPassword)
             await updateUserPassword(user, hashedPassword)
 
@@ -148,7 +131,6 @@ export async function handleChangePassword(req, res) {
             res.status(200).send()
             return
         } else {
-            setCookie(res, 'x-token', await refreshToken(user))
             res.status(401).send({ error: 'Invalid password' })
         }
     } catch(err) {
@@ -159,7 +141,7 @@ export async function handleChangePassword(req, res) {
     }
 }
 
-export async function handleChangeEmail(req, res) {
+export async function changeEmailHandler(req, res) {
     const { email } = req.body
     const user = req.user
 
@@ -211,7 +193,7 @@ function sendEmail(to, subject, body) {
 }
 
 // TODO: not working
-export async function handleForgotUsername(req, res) {
+export async function forgotUsernameHandler(req, res) {
     const { email } = req.body
 
     console.log(`Forgot username request for ${email}`)

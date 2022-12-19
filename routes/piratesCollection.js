@@ -1,26 +1,27 @@
 import express from 'express'
+import sanitizeRequest from 'express-sanitize-middleware'
+import { validate } from 'express-validation'
 
-import { updateCollection, removeFromCollection, getCollectionList } from '../crud/piratesCollection.js'
+import { collectionValidation } from '../models/piratesCollection.js'
+import { collectionGetHandler, collectionRemoveHandler, collectionUpdateHandler } from '../services/piratesCollection.js';
+import { auth } from '../utils/auth.js'
 
-const protectedRouter = express.Router();
-const unprotectedRouter = express.Router();
+const router = express.Router();
 
 
-// TODO: get user collection is being updated for
-unprotectedRouter.put('/update', async (req, res) => {
-    console.log(req.body)
-    res.send(await updateCollection(req.body.collection, req.body.user))
-})
+router.put(
+    '/update',
+    [sanitizeRequest({ body: true }), auth(), validate(collectionValidation, {}, {})],
+    collectionUpdateHandler
+)
 
-unprotectedRouter.put('/remove', async (req, res) => {
-})
+router.delete(
+    '/remove',
+    [sanitizeRequest({ query: true }), auth()],
+    collectionRemoveHandler
+)
 
-unprotectedRouter.get('', async (req, res) => {
-    res.send(await getCollectionList('BingoKnight'))
-})
+router.get('', auth(), collectionGetHandler)
 
-export default {
-    protectedRouter,
-    unprotectedRouter
-}
+export default router
 
