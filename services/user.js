@@ -127,7 +127,6 @@ export async function changePasswordHandler(req, res) {
             const hashedPassword = await hashPassword(newPassword)
             await updateUserPassword(user, hashedPassword)
 
-            setCookie(res, 'x-token', await refreshToken(user))
             res.status(200).send()
             return
         } else {
@@ -149,7 +148,6 @@ export async function changeEmailHandler(req, res) {
 
     try {
         await updateUserEmail(user, email)
-        setCookie(res, 'x-token', await refreshToken(user))
         res.status(200).send()
         return
     } catch(err) {

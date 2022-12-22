@@ -1,7 +1,5 @@
 import { findCsgModelsByObjectIds } from '../crud/csgModel.js'
 import { addToCollection, getUserCollection, removeFromCollection } from '../crud/piratesCollection.js'
-import { refreshToken } from '../utils/auth.js'
-import { setCookie } from '../utils/cookies.js'
 
 export async function collectionUpdateHandler(req, res) {
     console.log(req.body)
@@ -34,7 +32,6 @@ export async function collectionUpdateHandler(req, res) {
     const addResult = await addToCollection(collectionToAdd, user)
     console.log(addResult)
 
-    setCookie(res, 'x-token', await refreshToken(user))
     res.send(collectionToAdd)
 }
 
@@ -55,7 +52,6 @@ export async function collectionRemoveHandler(req, res) {
     const removeResult = await removeFromCollection(itemIds, user)
     console.log(removeResult)
 
-    setCookie(res, 'x-token', await refreshToken(user))
     res.send({ deletedCount: removeResult.deletedCount })
 }
 
@@ -66,7 +62,6 @@ export async function collectionGetHandler(req, res) {
 
     const userCollection = await getUserCollection(user)
 
-    setCookie(res, 'x-token', await refreshToken(user))
     res.send({
         count: userCollection.length,
         collection: userCollection

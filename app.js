@@ -16,7 +16,6 @@ import csgModelRouter from './routes/csgModel.js'
 import healthCheckRouter from './routes/healthCheck.js'
 import piratesCollectionRouter from './routes/piratesCollection.js'
 import userRouter from './routes/user.js'
-import User from './schemas/user.js'
 import startServer, { connectDb } from './utils/startup.js'
 
 const ROUTE_PREFIX = '/v1'
