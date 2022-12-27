@@ -16,7 +16,7 @@ export async function refreshToken(user) {
         config.JWT_SECRET,
         {
             algorithm: 'HS256',
-            expiresIn: '2 days',
+            expiresIn: 60 * 60 * 24 * 7,
             issuer: config.BASE_URL,
             audience: config.BASE_URL
         }
