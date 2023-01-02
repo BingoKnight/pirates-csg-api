@@ -32,7 +32,12 @@ export async function collectionUpdateHandler(req, res) {
     const addResult = await addToCollection(collectionToAdd, user)
     console.log(addResult)
 
-    res.send(collectionToAdd)
+    const userCollection = await getUserCollection(user)
+
+    res.send({
+        count: userCollection.length,
+        collection: userCollection
+    })
 }
 
 export async function collectionRemoveHandler(req, res) {
@@ -52,7 +57,12 @@ export async function collectionRemoveHandler(req, res) {
     const removeResult = await removeFromCollection(itemIds, user)
     console.log(removeResult)
 
-    res.send({ deletedCount: removeResult.deletedCount })
+    const userCollection = await getUserCollection(user)
+
+    res.send({
+        count: userCollection.length,
+        collection: userCollection
+    })
 }
 
 export async function collectionGetHandler(req, res) {
