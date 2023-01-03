@@ -14,9 +14,8 @@ import { getUserByToken } from './crud/user.js'
 import abilityKeywordRouter from './routes/abilityKeyword.js'
 import csgModelRouter from './routes/csgModel.js'
 import healthCheckRouter from './routes/healthCheck.js'
-// import piratesCollectionRouter from './routes/piratesCollection.js'
+import piratesCollectionRouter from './routes/piratesCollection.js'
 import userRouter from './routes/user.js'
-import User from './schemas/user.js'
 import startServer, { connectDb } from './utils/startup.js'
 
 const ROUTE_PREFIX = '/v1'
@@ -75,10 +74,10 @@ const routers = [
         route: '/pirates-csg',
         router: csgModelRouter,
     },
-    // {
-    //     route: '/v1/collection',
-    //     router: piratesCollectionRouter,
-    // },
+    {
+        route: '/collection',
+        router: piratesCollectionRouter,
+    },
     {
         route: '/ability-keyword',
         router: abilityKeywordRouter,
