@@ -6,6 +6,7 @@ export default {
     NODE_ENV: process.env.NODE_ENV,
     BASE_URL: process.env.BASE_URL,
     DOMAIN: process.env.DOMAIN,
-    JWT_SECRET: process.env.JWT_SECRET
+    JWT_SECRET: process.env.JWT_SECRET,
+    ADMIN_AUTH_TOKEN: process.env.ADMIN_AUTH_TOKEN
 }
 

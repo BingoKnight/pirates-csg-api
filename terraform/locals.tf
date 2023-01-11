@@ -43,6 +43,10 @@ locals {
     {
       name      = "JWT_SECRET"
       valueFrom = "${aws_secretsmanager_secret.secrets.arn}:JWT_SECRET::"
+    },
+    {
+      name      = "ADMIN_AUTH_TOKEN"
+      valueFrom = "${aws_secretsmanager_secret.secrets.arn}:ADMIN_AUTH_TOKEN::"
     }
   ]
 }

@@ -8,6 +8,10 @@ export function auth() {
     return passport.authenticate('bearer', { session: false })
 }
 
+export function adminAuth() {
+    return passport.authenticate('admin', { session: false })
+}
+
 export async function refreshToken(user) {
     return jwt.sign(
         {

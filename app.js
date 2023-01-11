@@ -23,7 +23,7 @@ const ROUTE_PREFIX = '/v1'
 let app = express()
 
 app.use(logger('dev'))
-app.use(express.json({limit: '50mb'}))
+app.use(express.json({limit: '5mb'}))
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.resolve('./public')))
@@ -67,6 +67,13 @@ passport.use(new BearerStrategy(async (token, done) => {
             console.log(err)
             return done(null, false)
         })
+}))
+
+passport.use('admin', new BearerStrategy(async (token, done) => {
+    if (token === config.ADMIN_AUTH_TOKEN)
+        return done(null, true)
+
+    return done(null, false)
 }))
 
 const routers = [
