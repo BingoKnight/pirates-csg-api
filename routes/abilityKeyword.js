@@ -11,7 +11,7 @@ router.put('/update', adminAuth(), async (req, res, next) => {
     res.send(await addKeyword(req.body))
 })
 
-router.get('', adminAuth(), async (req, res, next) => {
+router.get('', async (req, res, next) => {
     let query = {}
 
     if (req.query.name) {
