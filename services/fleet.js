@@ -9,30 +9,162 @@ import {
     updateFleet
 } from "../crud/fleet.js"
 
+// TODO: Add validation around crew factions on ships, crew with ability of any nationality should
+//       be considered
+// TODO: Add validation around crew point cost not exceeding ships point cost
+
 function getValidationError(err) {
+    console.log(err)
+
     if (err.path === '_id') {
         return [400, 'Invalid fleet ID']
     }
 
-    const castError = Object.values(err.errors).find(errValueObj => errValueObj.name === 'CastError')
+    let castError
+    try {
+        castError = Object.values(err.errors).find(errValueObj => errValueObj.name === 'CastError')
+    } catch (err) {
+        console.error(JSON.stringify(err))
+        return [500, 'Unexpected error occurred']
+    }
 
     if (err.name === 'ValidationError' && castError) {
         console.log(`Unable to create fleet because ID ${castError.reason.value} doesn't exist`)
         return [400, `Invalid model ID: ${castError.reason.value}`]
-    } else {
-        console.error(err)
-        return [500, 'Unexpected error occurred']
     }
+
+    if (err.name === 'ValidationError' && Object.keys(err.errors).includes('pointCost')) {
+        console.log(`Minimum point cost threshold not met: ${JSON.stringify(err)}`)
+        return [400, 'Fleet must cost more than 0 points']
+    }
+
+    console.error(JSON.stringify(err))
+    return [500, 'Unexpected error occurred']
 }
 
-function hasValidFleetModels(model) {
-    return ['crew', 'ship', 'fort', 'equipment', 'event', 'treasure'].includes(model.type.toLowerCase())
+async function getFleetValidationErrors(populatedFleet) {
+    function isValidAttachment(attachment) {
+        return !['crew', 'equipment', 'event'].includes(attachment.type.toLowerCase())
+    }
+
+    let errors = []
+
+    const invalidShips = populatedFleet.ships.filter(ship => ship.type.toLowerCase() !== 'ship')
+    const invalidForts = populatedFleet.forts.filter(fort => fort.type.toLowerCase() !== 'fort')
+    const invalidAttachments = populatedFleet.attachments.filter(isValidAttachment)
+    const invalidUnassigned = populatedFleet.unassigned.filter(isValidAttachment)
+    const invalidUniqeTreasure = populatedFleet.uniqueTreasure.filter(ut => ut.type.toLowerCase() !== 'treasure')
+
+    if (invalidShips.length > 0) {
+        errors = errors.concat(
+            invalidShips.map(model => {
+                return {
+                    type: 'INVALID_SHIP',
+                    message: `${model._id} is not a ship`
+                }
+            })
+        )
+    }
+
+    if (invalidForts.length > 0) {
+        errors = errors.concat(
+            invalidForts.map(model => {
+                return {
+                    type: 'INVALID_FORT',
+                    message: `${model._id} is not a fort`
+                }
+            })
+        )
+    }
+
+    if (invalidAttachments.length > 0) {
+        errors = errors.concat(
+            invalidAttachments.map(model => {
+                return {
+                    type: 'INVALID_ATTACHMENT',
+                    message: `${model._id} is not a crew, equipment, or event`
+                }
+            })
+        )
+    }
+
+    if (invalidUnassigned.length > 0) {
+        errors = errors.concat(
+            invalidUnassigned.map(model => {
+                return {
+                    type: 'INVALID_UNASSIGNED',
+                    message: `${model._id} is not a crew, equipment, or event`
+                }
+            })
+        )
+    }
+
+    if (invalidUniqeTreasure.length > 0) {
+        errors = errors.concat(
+            invalidUniqeTreasure.map(model => {
+                return {
+                    type: 'INVALID_UNIQUE_TREASURE',
+                    message: `${model._id} is not a unique treasure`
+                }
+            })
+        )
+    }
+
+    return errors
 }
 
-function getFleetPointCost(modelsInFleet) {
-    return modelsInFleet
+function calculateFleetPointCost(populatedFleet) {
+    return Object
+        .keys(populatedFleet)
+        .flatMap(key => populatedFleet[key])
         .filter(model => ['crew', 'ship', 'event', 'equipment'].includes(model.type.toLowerCase()))
         .reduce((acc, model) => acc + model.pointCost, 0)
+}
+
+async function getPopulatedFleet(fleet) {
+    const attachmentIds = fleet.ships.flatMap(ship => ship.attachments).filter(id => id)
+    const dbPopulatedFleet = {
+        ships: await findCsgModelsByObjectIds(fleet.ships.map(ship => ship.ship)),
+        forts: await findCsgModelsByObjectIds(fleet.forts),
+        attachments: await findCsgModelsByObjectIds(attachmentIds),
+        unassigned: await findCsgModelsByObjectIds(fleet.unassigned),
+        uniqueTreasure: await findCsgModelsByObjectIds(fleet.uniqueTreasure)
+    }
+
+    const modifiedFleet = {
+        ...fleet,
+        ships: fleet.ships.map(ship => ship.ship),
+        attachments: attachmentIds
+    }
+
+    function getDuplicateIds(fleetAttributeList) {
+        let unique = []
+        return fleetAttributeList
+            .map(id => {
+                if (unique.includes(id)) {
+                    return id
+                }
+                unique.push(id)
+                return null
+            })
+            .filter(id => id)
+    }
+
+    return Object.fromEntries(
+        Object.keys(dbPopulatedFleet).map(key => {
+            if (modifiedFleet[key] && modifiedFleet[key].length !== dbPopulatedFleet[key].length) {
+                const duplicates = getDuplicateIds(modifiedFleet[key])
+
+                const duplicateModels = duplicates.map(id => {
+                    return dbPopulatedFleet[key].find(model => model._id.toString() === id)
+                })
+
+                return [key, [...dbPopulatedFleet[key], ...duplicateModels]]
+            }
+
+            return [key, dbPopulatedFleet[key]]
+        })
+    )
 }
 
 export async function fleetGetHandler(req, res) {
@@ -99,20 +231,28 @@ export async function fleetCreateHandler(req, res) {
 
     console.log(`Creating new fleet for user ${user.username} with ${JSON.stringify(baseFleet)}`)
 
-    const modelsInFleet = (await findCsgModelsByObjectIds(baseFleet.models)).filter(hasValidFleetModels)
+    let populatedFleet
+    try {
+        populatedFleet = await getPopulatedFleet(baseFleet)
+    } catch (err) {
+        const [ statusCode, message ] = getValidationError(err)
+        res.status(statusCode).send({ error: message })
+        return
+    }
 
-    if (modelsInFleet.length === 0 || !modelsInFleet.find(model => model.type.toLowerCase() === 'ship')) {
-        console.log('Invalid fleet models')
+    const fleetValidationErrors = await getFleetValidationErrors(populatedFleet)
+
+    if (fleetValidationErrors.length > 0) {
+        console.log(`Fleet failed validation with the following errors: ${fleetValidationErrors}`)
         res.status(400).send({
-            error: 'Fleet must contain valid ships, crew, events, or equipment'
+            errors: fleetValidationErrors
         })
         return
     }
 
-    const pointCost = getFleetPointCost(modelsInFleet)
+    const pointCost = calculateFleetPointCost(populatedFleet)
 
     let fleetCreateResult
-
     try {
         fleetCreateResult = await createFleet({ ...baseFleet, pointCost, user })
     } catch (err) {
@@ -139,22 +279,30 @@ export async function fleetUpdateHandler(req, res) {
 
     console.log(`Updating fleet for user ${user.username} with ${JSON.stringify(fleetToUpdate)}`)
 
-    const modelsInFleet = (await findCsgModelsByObjectIds(fleetToUpdate.models)).filter(hasValidFleetModels)
+    let populatedFleet
+    try {
+        populatedFleet = await getPopulatedFleet(fleetToUpdate)
+    } catch (err) {
+        const [ statusCode, message ] = getValidationError(err)
+        res.status(statusCode).send({ error: message })
+        return
+    }
 
-    if (modelsInFleet.length === 0 || !modelsInFleet.find(model => model.type.toLowerCase() === 'ship')) {
-        console.log('Invalid fleet models')
+    const fleetValidationErrors = await getFleetValidationErrors(populatedFleet)
+
+    if (fleetValidationErrors.length > 0) {
+        console.log(`Fleet failed validation with the following errors: ${fleetValidationErrors}`)
         res.status(400).send({
-            error: 'Fleet must contain valid ships, crew, events, or equipment'
+            errors: fleetValidationErrors
         })
         return
     }
 
-    const pointCost = getFleetPointCost(modelsInFleet)
+    const pointCost = calculateFleetPointCost(populatedFleet)
 
     let updatedFleet
-
     try {
-        updatedFleet = await updateFleet({ ...fleetToUpdate, pointCost }, user)
+        updatedFleet = await updateFleet({ ...fleetToUpdate, user, pointCost })
     } catch (err) {
         const [statusCode, errorMessage] = getValidationError(err)
 
@@ -170,7 +318,7 @@ export async function fleetUpdateHandler(req, res) {
     } else {
         console.log('Fleet either did not exist or user did not have permission to update')
         res.status(404).send({
-            error: `Fleet ID ${fleetId} does not exist`
+            error: `Fleet ID ${fleetToUpdate._id} does not exist`
         })
     }
 }

@@ -20,10 +20,25 @@ export const FleetSchema = new Schema({
         min: 1
     },
     user: { type: Schema.Types.ObjectId, ref: 'User' },
-    models: [{
+    ships: [{
+        ship: {
+            type: Schema.Types.ObjectId,
+            ref: 'CsgModel'
+        },
+        attachments: [{
+            type: Schema.Types.ObjectId,
+            ref: 'CsgModel'
+        }]
+    }],
+    forts: [{ type: Schema.Types.ObjectId, ref: 'CsgModel' }],
+    unassigned: [{
         type: Schema.Types.ObjectId,
         ref: 'CsgModel'
     }],
+    uniqueTreasure: [{
+        type: Schema.Types.ObjectId,
+        ref: 'CsgModel'
+    }]
 }, { timestamps: true })
 
 export default mongoose.model('Fleet', FleetSchema)

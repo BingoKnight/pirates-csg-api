@@ -16,7 +16,15 @@ const baseFleetValidation = {
         .messages({
             'string.max': 'Description may not exceed 4096 characters'
         }),
-    models: Joi.array().items(Joi.string())
+    ships: Joi.array().items(
+        Joi.object({
+            ship: Joi.string(),
+            attachments: Joi.array().items(Joi.string())
+        })
+    ),
+    forts: Joi.array().items(Joi.string()),
+    unassigned: Joi.array().items(Joi.string()),
+    uniqueTreasure: Joi.array().items(Joi.string())
 }
 
 
