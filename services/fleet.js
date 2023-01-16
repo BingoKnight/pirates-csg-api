@@ -13,8 +13,6 @@ function getValidationError(err) {
         return [400, 'Invalid fleet ID']
     }
 
-    console.log(JSON.stringify(err))
-
     const castError = Object.values(err.errors).find(errValueObj => errValueObj.name === 'CastError')
 
     if (err.name === 'ValidationError' && castError) {
@@ -58,9 +56,7 @@ export async function fleetGetOneHandler(req, res) {
 
     console.log(`Getting Fleet for ID ${fleetId}`)
 
-    let fleetObj = undefined
-
-    console.log(fleetId)
+    let fleetObj
 
     try {
         fleetObj = await getFleetById(fleetId)
@@ -105,7 +101,7 @@ export async function fleetCreateHandler(req, res) {
         return
     }
 
-    console.log(fleetCreateResult)
+    console.log(`Fleet create results: ${fleetCreateResult}`)
 
     const newFleet = await getFleetById(fleetCreateResult._id)
 
@@ -134,8 +130,10 @@ export async function fleetUpdateHandler(req, res) {
     }
 
     if (updatedFleet) {
+        console.log(`Fleet ${fleetToUpdate._id} successfully updated`)
         res.send(updatedFleet)
     } else {
+        console.log('Fleet either did not exist or user did not have permission to update')
         res.status(404).send({
             error: `Fleet ID ${fleetId} does not exist`
         })
@@ -164,8 +162,10 @@ export async function fleetDeleteHandler(req, res) {
     const deletedFleet = await deleteFleet(fleetToDelete, user)
 
     if (deletedFleet) {
+        console.log(`Successfully deleted fleet ${fleetId}`)
         res.send(deletedFleet)
     } else {
+        console.log(`User ${user.username} does not have permission to update fleet ${fleetId}`)
         res.status(401).send('Unauthorized')
     }
 }
