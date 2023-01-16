@@ -16,15 +16,6 @@ const baseFleetValidation = {
         .messages({
             'string.max': 'Description may not exceed 4096 characters'
         }),
-    pointCost: Joi
-        .number()
-        .integer()
-        .min(1)
-        .messages({
-            'number.base': 'Fleet point cost must be a number',
-            'number.integer': 'Fleet point cost must be an integer',
-            'number.min': 'Fleet point cost must be greater than or equal to 1'
-        }),
     models: Joi.array().items(Joi.string())
 }
 

@@ -1,4 +1,5 @@
 import config from "../common/config.js"
+import {findCsgModelsByObjectIds} from "../crud/csgModel.js"
 import {
     createFleet,
     deleteFleet,
@@ -22,6 +23,16 @@ function getValidationError(err) {
         console.error(err)
         return [500, 'Unexpected error occurred']
     }
+}
+
+function hasValidFleetModels(model) {
+    return ['crew', 'ship', 'fort', 'equipment', 'event', 'treasure'].includes(model.type.toLowerCase())
+}
+
+function getFleetPointCost(modelsInFleet) {
+    return modelsInFleet
+        .filter(model => ['crew', 'ship', 'event', 'equipment'].includes(model.type.toLowerCase()))
+        .reduce((acc, model) => acc + model.pointCost, 0)
 }
 
 export async function fleetGetHandler(req, res) {
@@ -88,10 +99,22 @@ export async function fleetCreateHandler(req, res) {
 
     console.log(`Creating new fleet for user ${user.username} with ${JSON.stringify(baseFleet)}`)
 
+    const modelsInFleet = (await findCsgModelsByObjectIds(baseFleet.models)).filter(hasValidFleetModels)
+
+    if (modelsInFleet.length === 0 || !modelsInFleet.find(model => model.type.toLowerCase() === 'ship')) {
+        console.log('Invalid fleet models')
+        res.status(400).send({
+            error: 'Fleet must contain valid ships, crew, events, or equipment'
+        })
+        return
+    }
+
+    const pointCost = getFleetPointCost(modelsInFleet)
+
     let fleetCreateResult
 
     try {
-        fleetCreateResult = await createFleet({ ...baseFleet, user })
+        fleetCreateResult = await createFleet({ ...baseFleet, pointCost, user })
     } catch (err) {
         const [statusCode, errorMessage] = getValidationError(err)
 
@@ -116,10 +139,22 @@ export async function fleetUpdateHandler(req, res) {
 
     console.log(`Updating fleet for user ${user.username} with ${JSON.stringify(fleetToUpdate)}`)
 
+    const modelsInFleet = (await findCsgModelsByObjectIds(fleetToUpdate.models)).filter(hasValidFleetModels)
+
+    if (modelsInFleet.length === 0 || !modelsInFleet.find(model => model.type.toLowerCase() === 'ship')) {
+        console.log('Invalid fleet models')
+        res.status(400).send({
+            error: 'Fleet must contain valid ships, crew, events, or equipment'
+        })
+        return
+    }
+
+    const pointCost = getFleetPointCost(modelsInFleet)
+
     let updatedFleet
 
     try {
-        updatedFleet = await updateFleet(fleetToUpdate, user)
+        updatedFleet = await updateFleet({ ...fleetToUpdate, pointCost }, user)
     } catch (err) {
         const [statusCode, errorMessage] = getValidationError(err)
 
