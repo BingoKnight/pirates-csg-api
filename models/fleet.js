@@ -23,6 +23,7 @@ const baseFleetValidation = {
         })
     ),
     forts: Joi.array().items(Joi.string()),
+    events: Joi.array().items(Joi.string()),
     unassigned: Joi.array().items(Joi.string()),
     uniqueTreasure: Joi.array().items(Joi.string())
 }

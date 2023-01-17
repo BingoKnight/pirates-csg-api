@@ -31,6 +31,7 @@ export const FleetSchema = new Schema({
         }]
     }],
     forts: [{ type: Schema.Types.ObjectId, ref: 'CsgModel' }],
+    events: [{ type: Schema.Types.ObjectId, ref: 'CsgModel' }],
     unassigned: [{
         type: Schema.Types.ObjectId,
         ref: 'CsgModel'

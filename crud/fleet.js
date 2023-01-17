@@ -5,6 +5,7 @@ async function populate(query) {
         .populate('ships.ship', '-__v')
         .populate('ships.attachments', '-__v')
         .populate('forts', '-__v')
+        .populate('events', '-__v')
         .populate('unassigned', '-__v')
         .populate('uniqueTreasure', '-__v')
         .select('-__v')

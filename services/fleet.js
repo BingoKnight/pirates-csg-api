@@ -44,7 +44,7 @@ function getValidationError(err) {
 
 async function getFleetValidationErrors(populatedFleet) {
     function isValidAttachment(attachment) {
-        return !['crew', 'equipment', 'event'].includes(attachment.type.toLowerCase())
+        return !['crew', 'equipment'].includes(attachment.type.toLowerCase())
     }
 
     let errors = []
@@ -52,6 +52,7 @@ async function getFleetValidationErrors(populatedFleet) {
     const invalidShips = populatedFleet.ships.filter(ship => ship.type.toLowerCase() !== 'ship')
     const invalidForts = populatedFleet.forts.filter(fort => fort.type.toLowerCase() !== 'fort')
     const invalidAttachments = populatedFleet.attachments.filter(isValidAttachment)
+    const invalidEvents = populatedFleet.events.filter(event => event.type.toLowerCase() !== 'event')
     const invalidUnassigned = populatedFleet.unassigned.filter(isValidAttachment)
     const invalidUniqeTreasure = populatedFleet.uniqueTreasure.filter(ut => ut.type.toLowerCase() !== 'treasure')
 
@@ -82,7 +83,18 @@ async function getFleetValidationErrors(populatedFleet) {
             invalidAttachments.map(model => {
                 return {
                     type: 'INVALID_ATTACHMENT',
-                    message: `${model._id} is not a crew, equipment, or event`
+                    message: `${model._id} is not a crew or equipment`
+                }
+            })
+        )
+    }
+
+    if (invalidEvents.length > 0) {
+        errors = errors.concat(
+            invalidEvents.map(model => {
+                return {
+                    type: 'INVALID_EVENT',
+                    message: `${model._id} is not an event`
                 }
             })
         )
@@ -93,7 +105,7 @@ async function getFleetValidationErrors(populatedFleet) {
             invalidUnassigned.map(model => {
                 return {
                     type: 'INVALID_UNASSIGNED',
-                    message: `${model._id} is not a crew, equipment, or event`
+                    message: `${model._id} is not a crew or equipment`
                 }
             })
         )
@@ -127,6 +139,7 @@ async function getPopulatedFleet(fleet) {
         ships: await findCsgModelsByObjectIds(fleet.ships.map(ship => ship.ship)),
         forts: await findCsgModelsByObjectIds(fleet.forts),
         attachments: await findCsgModelsByObjectIds(attachmentIds),
+        events: await findCsgModelsByObjectIds(fleet.events),
         unassigned: await findCsgModelsByObjectIds(fleet.unassigned),
         uniqueTreasure: await findCsgModelsByObjectIds(fleet.uniqueTreasure)
     }
