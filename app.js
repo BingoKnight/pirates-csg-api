@@ -13,6 +13,7 @@ import config from './common/config.js'
 import { getUserByToken } from './crud/user.js'
 import abilityKeywordRouter from './routes/abilityKeyword.js'
 import csgModelRouter from './routes/csgModel.js'
+import fleetRouter from './routes/fleet.js'
 import healthCheckRouter from './routes/healthCheck.js'
 import piratesCollectionRouter from './routes/piratesCollection.js'
 import userRouter from './routes/user.js'
@@ -96,6 +97,10 @@ const routers = [
     {
         route: '/user',
         router: userRouter
+    },
+    {
+        route: '/fleet',
+        router: fleetRouter
     }
 ]
 

@@ -1,7 +1,6 @@
 import mongoose from 'mongoose'
 
 const Schema = mongoose.Schema
-const ObjectId = Schema.ObjectId
 
 const userNameConfig = {
     type: String,
@@ -16,7 +15,6 @@ const userNameConfig = {
 }
 
 const User = new Schema({
-    id: ObjectId,
     _queryUsername: {
         ...userNameConfig,
         select: false
