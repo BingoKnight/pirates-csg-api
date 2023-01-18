@@ -33,48 +33,48 @@ data "aws_subnets" "public" {
   }
 }
 
-resource "aws_vpc_endpoint" "secretsmanager_endpoint" {
-  vpc_id              = data.aws_vpc.main.id
-  service_name        = "com.amazonaws.us-east-1.secretsmanager"
-  vpc_endpoint_type   = "Interface"
-  security_group_ids  = data.aws_security_groups.private.ids
-  subnet_ids          = data.aws_subnets.private.ids
-  private_dns_enabled = true
-}
-
-resource "aws_vpc_endpoint" "ecr_dkr_endpoint" {
-  vpc_id              = data.aws_vpc.main.id
-  service_name        = "com.amazonaws.us-east-1.ecr.dkr"
-  vpc_endpoint_type   = "Interface"
-  security_group_ids  = data.aws_security_groups.private.ids
-  subnet_ids          = data.aws_subnets.private.ids
-  private_dns_enabled = true
-}
-
-resource "aws_vpc_endpoint" "ecr_api_endpoint" {
-  vpc_id              = data.aws_vpc.main.id
-  service_name        = "com.amazonaws.us-east-1.ecr.api"
-  vpc_endpoint_type   = "Interface"
-  security_group_ids  = data.aws_security_groups.private.ids
-  subnet_ids          = data.aws_subnets.private.ids
-  private_dns_enabled = true
-}
-
-resource "aws_vpc_endpoint" "logs_endpoint" {
-  vpc_id              = data.aws_vpc.main.id
-  service_name        = "com.amazonaws.us-east-1.logs"
-  vpc_endpoint_type   = "Interface"
-  security_group_ids  = data.aws_security_groups.private.ids
-  subnet_ids          = data.aws_subnets.private.ids
-  private_dns_enabled = true
-}
-
-resource "aws_vpc_endpoint" "s3_endpoint" {
-  vpc_id              = data.aws_vpc.main.id
-  service_name        = "com.amazonaws.us-east-1.s3"
-  vpc_endpoint_type   = "Gateway"
-  route_table_ids     = [data.aws_route_table.internal_route_table.route_table_id]
-}
+# resource "aws_vpc_endpoint" "secretsmanager_endpoint" {
+#   vpc_id              = data.aws_vpc.main.id
+#   service_name        = "com.amazonaws.us-east-1.secretsmanager"
+#   vpc_endpoint_type   = "Interface"
+#   security_group_ids  = data.aws_security_groups.private.ids
+#   subnet_ids          = data.aws_subnets.private.ids
+#   private_dns_enabled = true
+# }
+#
+# resource "aws_vpc_endpoint" "ecr_dkr_endpoint" {
+#   vpc_id              = data.aws_vpc.main.id
+#   service_name        = "com.amazonaws.us-east-1.ecr.dkr"
+#   vpc_endpoint_type   = "Interface"
+#   security_group_ids  = data.aws_security_groups.private.ids
+#   subnet_ids          = data.aws_subnets.private.ids
+#   private_dns_enabled = true
+# }
+#
+# resource "aws_vpc_endpoint" "ecr_api_endpoint" {
+#   vpc_id              = data.aws_vpc.main.id
+#   service_name        = "com.amazonaws.us-east-1.ecr.api"
+#   vpc_endpoint_type   = "Interface"
+#   security_group_ids  = data.aws_security_groups.private.ids
+#   subnet_ids          = data.aws_subnets.private.ids
+#   private_dns_enabled = true
+# }
+#
+# resource "aws_vpc_endpoint" "logs_endpoint" {
+#   vpc_id              = data.aws_vpc.main.id
+#   service_name        = "com.amazonaws.us-east-1.logs"
+#   vpc_endpoint_type   = "Interface"
+#   security_group_ids  = data.aws_security_groups.private.ids
+#   subnet_ids          = data.aws_subnets.private.ids
+#   private_dns_enabled = true
+# }
+#
+# resource "aws_vpc_endpoint" "s3_endpoint" {
+#   vpc_id              = data.aws_vpc.main.id
+#   service_name        = "com.amazonaws.us-east-1.s3"
+#   vpc_endpoint_type   = "Gateway"
+#   route_table_ids     = [data.aws_route_table.internal_route_table.route_table_id]
+# }
 
 resource "aws_vpc_endpoint" "mongo_atlas_endpoint" {
   vpc_id              = data.aws_vpc.main.id
