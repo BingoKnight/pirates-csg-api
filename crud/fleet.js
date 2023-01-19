@@ -8,6 +8,7 @@ async function populate(query) {
         .populate('events', '-__v')
         .populate('unassigned', '-__v')
         .populate('uniqueTreasure', '-__v')
+        .populate('user', '-__v')
         .select('-__v')
 }
 
