@@ -33,3 +33,11 @@ data "aws_subnets" "public" {
   }
 }
 
+resource "aws_vpc_endpoint" "mongo_atlas_endpoint" {
+  vpc_id              = data.aws_vpc.main.id
+  service_name        = "com.amazonaws.vpce.us-east-1.vpce-svc-0b6ab6d74d4856940"
+  vpc_endpoint_type   = "Interface"
+  security_group_ids  = data.aws_security_groups.private.ids
+  subnet_ids          = data.aws_subnets.private.ids
+}
+
