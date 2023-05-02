@@ -76,7 +76,7 @@ export default function startServer(app) {
 
     if (cluster.isPrimary && config.NODE_ENV === 'production'){
         const cpuLength = cpus().length
-        const workerCount = cpus().length * 2 + 1
+        const workerCount = cpus().length + 1
 
         console.log(`Found ${cpuLength} CPUs, will spawn ${workerCount} workers`)
 
