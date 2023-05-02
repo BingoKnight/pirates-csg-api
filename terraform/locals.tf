@@ -2,7 +2,7 @@ locals {
   service_name = "pirates-csg-api"
   service_port = 8000
   ecs_desired_count = 1
-  ecs_max_count = 8
+  ecs_max_count = 1
 
   environment_variables = [
     {
