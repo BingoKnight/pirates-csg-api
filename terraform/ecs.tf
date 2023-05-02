@@ -13,8 +13,8 @@ resource "aws_ecs_task_definition" "pirates_csg_api_task_definition" {
   task_role_arn            = aws_iam_role.pirates_csg_api_role.arn
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = 512
-  memory                   = 1024
+  cpu                      = 256
+  memory                   = 512
 
   depends_on = [aws_ecr_repository.ecr-repo]
 
@@ -52,8 +52,8 @@ resource "aws_ecs_service" "pirates_csg_api" {
   desired_count   = local.ecs_desired_count
 
   lifecycle {
-    # Allow autoscaling to modify desired_count without upsetting Terraform
-    # Comment out when intentionally modifing desired count because this will block that change
+  #   # Allow autoscaling to modify desired_count without upsetting Terraform
+  #   # Comment out when intentionally modifing desired count because this will block that change
     ignore_changes = [desired_count]
   }
 
