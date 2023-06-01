@@ -11,14 +11,14 @@ services:
     volumes:
       - mongodb_data_container:/data/db
 
-  # redis:
-  #   image: redis:alpine
-  #   ports:
-  #     - "6379:6379"
-  #   environment:
-  #     - ALLOW_EMPTY_PASSWORD=yes
-  #   volumes:
-  #     - redis_data:/data
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - redis_data:/data
 
 volumes:
   redis_data:

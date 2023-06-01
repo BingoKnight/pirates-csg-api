@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ECR_REPO=.dkr.ecr.us-east-1.amazonaws.com
+ECR_REPO=785117170351.dkr.ecr.us-east-1.amazonaws.com
 SERVICE_NAME=pirates-csg-api
 ECR_IMAGE=${SERVICE_NAME}:latest
 CONTAINER_PORT=8080

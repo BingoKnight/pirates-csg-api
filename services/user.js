@@ -57,7 +57,7 @@ export async function registrationHandler(req, res) {
         }
 
         const user = await registerUser(hashPasswordUser)
-        
+
         const logSafeUser = {
             username: user.username,
             email: user.email
@@ -94,7 +94,7 @@ export async function loginHandler(req, res) {
         if (!user)
             throw new Error(`No user matching username ${username}`)
 
-        if (bcrypt.compare(password, user.password)) {
+        if (bcrypt.compareSync(password, user.password)) {
             setCookie(res, 'x-token', await refreshToken(user))
             res.status(200).send({
                 username: user.username,
@@ -123,7 +123,7 @@ export async function changePasswordHandler(req, res) {
     try {
         const dbUser = await getFullUser(user)
 
-        if (bcrypt.compare(password, dbUser.password)) {
+        if (bcrypt.compareSync(password, dbUser.password)) {
             const hashedPassword = await hashPassword(newPassword)
             await updateUserPassword(user, hashedPassword)
 
