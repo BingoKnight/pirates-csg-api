@@ -1,0 +1,47 @@
+services:
+  pirates-csg-app:
+    build: .
+    image: 785117170351.dkr.ecr.us-east-1.amazonaws.com/pirates-csg-api:latest
+    container_name: pirates-csg-app
+    depends_on:
+      - pirates-csg-db
+      - pirates-csg-cache
+    ports:
+      - 8080:8080
+    networks:
+      - pirates-csg-network
+    env_file:
+      - ./.env
+
+  pirates-csg-db:
+    image: mongo:8
+    container_name: pirates-csg-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootpassword
+    ports:
+      - 27017:27017
+    networks:
+      - pirates-csg-network
+    volumes:
+      - mongodb_data_container:/data/db
+
+  pirates-csg-cache:
+    image: redis:8.0.1-alpine
+    container_name: pirates-csg-cache
+    ports:
+      - 6379:6379
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    networks:
+      - pirates-csg-network
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
+  mongodb_data_container:
+
+networks:
+  pirates-csg-network:
+    name: pirates-csg-network

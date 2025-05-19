@@ -65,6 +65,7 @@ export function connectDb() {
         user: config.DB_USER,
         pass: config.DB_PASSWORD,
         dbName: config.DB_NAME,
+        authSource: config.DB_NAME,
         keepAlive: true,
         useNewUrlParser: true,
         useUnifiedTopology: true,

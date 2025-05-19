@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "docker-compose up -d --remove-orphans && nodemon -r dotenv/config app.js"
+    "start": "docker compose up -d --remove-orphans && nodemon -r dotenv/config app.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",
