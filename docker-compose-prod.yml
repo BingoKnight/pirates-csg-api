@@ -1,8 +1,8 @@
 services:
-  pirates-csg-app:
+  pirates-csg-api-prod:
     build: .
-    image: 785117170351.dkr.ecr.us-east-1.amazonaws.com/pirates-csg-api:latest
-    container_name: pirates-csg-app
+    image: pirates-csg-api-prod:latest
+    container_name: pirates-csg-api-prod
     depends_on:
       - pirates-csg-db
       - pirates-csg-cache
